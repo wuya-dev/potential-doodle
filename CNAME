@@ -1,1 +1,433 @@
 wuya.com
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 职高升学助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .input-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+        label {
+            display: block;
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        input, textarea {
+            width: 100%;
+            font-size: 16px;
+            padding: 12px 15px;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus {
+            border-color: #667eea;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .btn-primary {
+            width: 100%;
+            height: 52px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 26px;
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            transform: none;
+        }
+        .chat-container {
+            margin-top: 20px;
+        }
+        .message {
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+        .message.user {
+            margin-left: auto;
+        }
+        .message.assistant {
+            margin-right: auto;
+        }
+        .message-content {
+            padding: 14px 18px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .input-area {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .chat-input {
+            flex: 1;
+            max-width: 760px;
+            margin: 0 auto;
+            border: 1px solid #e8e8e8;
+            border-radius: 24px;
+            padding: 12px 20px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+        .btn-send {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .btn-send:hover {
+            transform: scale(1.05);
+        }
+        .btn-send:disabled {
+            opacity: 0.6;
+            transform: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 14px;
+        }
+        .hint {
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+        a {
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        /* 手机端适配 */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+                padding: 15px;
+            }
+            .input-card {
+                padding: 20px;
+            }
+            .message {
+                max-width: 85%;
+            }
+            .message-content {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+            .input-area {
+                padding: 12px 15px;
+            }
+            .chat-input {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">🎓 职高升学助手</h1>
+        <p class="subtitle">AI帮你规划升学路径，找到最适合的大专院校</p>
+    </div>
+
+    <div class="container">
+        <div class="input-card" id="inputCard">
+            <div class="form-group">
+                <label>📍 省份</label>
+                <input type="text" id="province" placeholder="如：山东、江苏、广东">
+            </div>
+            
+            <div class="form-group">
+                <label>💻 所学专业</label>
+                <input type="text" id="major" placeholder="如：计算机、软件技术、网络安全">
+            </div>
+            
+            <div class="form-group">
+                <label>📊 理想院校是什么样的？</label>
+                <textarea id="expectation" placeholder="比如：想考省会城市的学校，宿舍要有空调，想专升本..."></textarea>
+            </div>
+            
+            <button class="btn-primary" id="startBtn" onclick="startAnalysis()">开始分析</button>
+            
+            <p class="hint">💡 成绩不确定没关系，AI会根据你的情况推荐冲/稳/保院校</p>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <!-- 对话消息会在这里显示 -->
+        </div>
+    </div>
+
+    <div class="input-area" id="inputArea" style="display: none;">
+        <input type="text" class="chat-input" id="chatInput" placeholder="输入你的问题..." onkeypress="handleKeyPress(event)">
+        <button class="btn-send" id="sendBtn" onclick="sendMessage()">↑</button>
+    </div>
+
+    <script>
+        const API_KEY = "你的DeepSeek API Key"; // 把你的Key填在这里
+        
+        let conversationHistory = [];
+        let isLoading = false;
+
+        // 开始分析
+        async function startAnalysis() {
+            const province = document.getElementById('province').value.trim();
+            const major = document.getElementById('major').value.trim();
+            const expectation = document.getElementById('expectation').value.trim();
+
+            if (!province || !major) {
+                alert('请至少填写省份和专业');
+                return;
+            }
+
+            // 隐藏初始输入卡片
+            document.getElementById('inputCard').style.display = 'none';
+            document.getElementById('inputArea').style.display = 'flex';
+
+            // 构建初始prompt
+            const initialPrompt = `
+你是一位经验丰富的职高升学顾问，专门帮助职高计算机专业学生选择大专院校。
+
+【用户基本信息】
+- 省份：${province}
+- 所学专业：${major}
+- 理想院校期望：${expectation || '未提供，按一般情况推荐'}
+
+【你的任务】
+1. 基于以上信息，推荐3所${province}省内最适合的大专院校
+2. 每所学校包含：录取难度、优势专业、往年分数线、考试科目、客观评价、学长学姐真实吐槽
+3. 每所学校介绍完后，单独加一行图片链接，例如：
+   🔗 [点击查看宿舍和教室真实照片](https://image.baidu.com/search/index?tn=baiduimage&word=山东职业学院 宿舍 教室 校园环境)
+   重要：必须把上面例子中的"山东职业学院"替换成你正在介绍的那所学校的真实全名，绝对不能保留"学校名称"这四个字！
+4. 最后给出冲/稳/保报考建议
+
+【重要要求】
+- ❌ 不要做学校之间的对比（留到用户进一步提问时再做）
+- ❌ 不要问用户"是否需要学习计划"（先专注学校推荐）
+- ✅ 只推荐${province}省内真实存在的学校
+- ✅ 信息准确，不要编造
+- ✅ 语气像学长学姐，亲切接地气，不要官方套话
+- ✅ 格式清晰，用 emoji 分点
+- ✅ 每一项单独占一行，格式对齐，不要把多个信息挤在同一行
+
+最后结尾固定说："这是我初步推荐的学校，你可以告诉我你更看重哪些方面（比如地理位置、学费、宿舍条件、升本率），我帮你进一步筛选和对比。"
+            `;
+
+            // 显示用户问题
+            addMessage('user', `省份：${province}\n专业：${major}\n期望：${expectation || '一般情况'}`);
+            
+            // 调用AI
+            await callAI(initialPrompt);
+        }
+
+        // 发送追问消息
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message || isLoading) return;
+            
+            input.value = '';
+            addMessage('user', message);
+            await callAI(message);
+        }
+
+        // 回车发送
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 调用AI接口
+        async function callAI(userMessage) {
+            isLoading = true;
+            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('startBtn') && (document.getElementById('startBtn').disabled = true);
+
+            // 显示loading
+            const loadingId = 'loading-' + Date.now();
+            addLoading(loadingId);
+
+            // 加入对话历史
+            conversationHistory.push({ role: 'user', content: userMessage });
+
+            try {
+                const response = await fetch('https://api.deepseek.com/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + API_KEY
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek-v4-flash',
+                        messages: conversationHistory
+                    })
+                });
+
+                const data = await response.json();
+                const aiReply = data.choices[0].message.content;
+
+                // 移除loading
+                removeLoading(loadingId);
+
+                // 显示AI回复
+                addMessage('assistant', aiReply);
+
+                // 加入对话历史
+                conversationHistory.push({ role: 'assistant', content: aiReply });
+
+            } catch (e) {
+                removeLoading(loadingId);
+                addMessage('assistant', '出错了：' + e.message + '\n请检查API Key是否正确');
+            }
+
+            isLoading = false;
+            document.getElementById('sendBtn').disabled = false;
+            document.getElementById('startBtn') && (document.getElementById('startBtn').disabled = false);
+        }
+
+        // 添加消息到界面
+        function addMessage(role, content) {
+            const container = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            // 1. 把Markdown链接转成可点击的HTML链接
+            let formattedContent = content
+                .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+                .replace(/\n/g, '<br>');
+            
+            // 2. 【双重保险】自动把链接里的占位符替换成实际的学校名
+            // 从内容里提取所有学校名
+            const schoolNames = content.match(/([\u4e00-\u9fa5]{2,15}(职业技术学院|职业学院|大专|学院))/g);
+            
+            if (schoolNames && schoolNames.length > 0) {
+                // 按顺序替换链接里的学校名
+                let schoolIndex = 0;
+                formattedContent = formattedContent.replace(
+                    /(word=)(学校名称|学校名)/g,
+                    function(match, prefix) {
+                        const schoolName = schoolNames[schoolIndex % schoolNames.length];
+                        schoolIndex++;
+                        return prefix + encodeURIComponent(schoolName);
+                    }
+                );
+            }
+            
+            messageDiv.innerHTML = `<div class="message-content">${formattedContent}</div>`;
+            container.appendChild(messageDiv);
+            
+            // 滚动到底部
+            messageDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 添加loading
+        function addLoading(id) {
+            const container = document.getElementById('chatContainer');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = id;
+            loadingDiv.className = 'loading';
+            loadingDiv.innerText = 'AI正在思考...';
+            container.appendChild(loadingDiv);
+            loadingDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 移除loading
+        function removeLoading(id) {
+            const loading = document.getElementById(id);
+            if (loading) loading.remove();
+        }
+    </script>
+</body>
+</html>
